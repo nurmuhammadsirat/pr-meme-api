@@ -20,8 +20,5 @@ PLATFORMS
 DEPENDENCIES
   sinatra (~> 2.0.8)
 
-RUBY VERSION
-   ruby 2.7.1p83
-
 BUNDLED WITH
    2.1.4
