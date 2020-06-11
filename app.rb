@@ -52,10 +52,9 @@ get "/:format/:id" do
 end
 
 post "/slack" do
-  puts request.inspect
   if slack.verify(request)
     "Authentic payload"
   else
-    "NOT authentic payload"
+    status 400
   end
 end
