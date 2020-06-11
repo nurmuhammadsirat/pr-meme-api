@@ -24,11 +24,12 @@ end
 
 get "/:format" do
   format = params["format"]
-  image_to_use = images[rand(limit)]
+  id = rand(limit)
+  image_url = images[id]
 
   case format
-  when 'html' then "<html><body><img style='max-width:100vw;max-height:100vh;width:auto;height:auto' src=\"#{image_to_use}\" /></body></html>"
-  when 'json' then JSON.generate({image: image_to_use})
+  when 'html' then "<html><body><img style='max-width:100vw;max-height:100vh;width:auto;height:auto' src=\"#{image_url}\" /></body></html>"
+  when 'json' then JSON.generate({id: id,image: image_url})
   else
     "<html><body style='width:450px;margin:20px auto'><p style='text-align:center'>Unsupported format: #{format}</p></body></html>"
   end
@@ -36,17 +37,12 @@ end
 
 get "/:format/:id" do
   format = params["format"]
-  id = params["id"] =~ /^\d+$/ ? params["id"].to_i : nil
-
-  image_to_use = if id
-    images[id] || images[id % limit]
-  else
-    images[rand(limit)]
-  end
+  id = params["id"] =~ /^\d+$/ ? params["id"].to_i : rand(limit)
+  image_url = images[id % limit]
 
   case format
-  when 'html' then "<html><body><img style='max-width:100vw;max-height:100vh;width:auto;height:auto' src=\"#{image_to_use}\" /></body></html>"
-  when 'json' then JSON.generate({image: image_to_use})
+  when 'html' then "<html><body><img style='max-width:100vw;max-height:100vh;width:auto;height:auto' src=\"#{image_url}\" /></body></html>"
+  when 'json' then JSON.generate({id: (id % limit),image: image_url})
   else
     "<html><body style='width:450px;margin:20px auto'><p style='text-align:center'>Unsupported format: #{format}</p></body></html>"
   end
