@@ -7,11 +7,11 @@ class Slack
   end
 
   def verify(request)
-    timestamp = request.headers['X-Slack-Request-Timestamp']
-    signature_from_slack = request.headers['X-Slack-Signature']
+    timestamp = request.env['X-Slack-Request-Timestamp']
+    signature_from_slack = request.env['X-Slack-Signature']
 
     verify_timestamp(timestamp.to_i) &&
-      verify_payload(timestamp, request.body.to_s, signature_from_slack)
+      verify_payload(timestamp, request.body.read, signature_from_slack)
   end
 
   private
