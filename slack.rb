@@ -1,14 +1,15 @@
 require 'openssl'
 
 class Slack
-  def initialize
+  def initialize(logger)
+    @logger = logger
     @slack_signing_secret = ENV['SLACK_SIGNING_SECRET']
     check_secret
   end
 
   def verify(request)
-    timestamp = request.env['X-Slack-Request-Timestamp']
-    signature_from_slack = request.env['X-Slack-Signature']
+    timestamp = request.env['HTTP_X_SLACK_REQUEST_TIMESTAMP']
+    signature_from_slack = request.env['HTTP_X_SLACK_SIGNATURE']
 
     verify_timestamp(timestamp.to_i) &&
       verify_payload(timestamp, request.body.read, signature_from_slack)
@@ -20,7 +21,7 @@ class Slack
 
   def check_secret
     if @slack_signing_secret.nil?
-      warn "Slack signing secret not in env var."
+      @logger.warn "Slack signing secret not in env var."
     end
   end
 
@@ -31,9 +32,13 @@ class Slack
   end
 
   def verify_payload(timestamp, req_body, signature_from_slack)
+    @logger.info "Verifying payload from Slack."
     data = "#{SLACK_VERSION_NO}:#{timestamp}:#{req_body}"
     digest = OpenSSL::Digest.new('sha256')
     my_signature = "#{SLACK_VERSION_NO}=#{OpenSSL::HMAC.hexdigest(digest, @slack_signing_secret, data)}"
+    @logger.info "DATA: #{data}"
+    @logger.info "MY SIGNATURE: #{my_signature}"
+    @logger.info "SLACK SIGNATURE: #{signature_from_slack}"
     my_signature == signature_from_slack
   end
 end
