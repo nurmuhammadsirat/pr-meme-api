@@ -2,8 +2,11 @@ require "sinatra"
 require "yaml"
 require "json"
 
+require_relative "./slack"
+
 images = YAML.load_file("#{File.dirname(__FILE__)}/data.yaml")["images"]
 limit = images.count
+slack = Slack.new
 
 get "/" do
   <<-HTML
@@ -45,5 +48,14 @@ get "/:format/:id" do
   when 'json' then JSON.generate({id: (id % limit),image: image_url})
   else
     "<html><body style='width:450px;margin:20px auto'><p style='text-align:center'>Unsupported format: #{format}</p></body></html>"
+  end
+end
+
+post "/slack" do
+  puts request
+  if slack.verify(request)
+    "Authentic payload"
+  else
+    "NOT authentic payload"
   end
 end
