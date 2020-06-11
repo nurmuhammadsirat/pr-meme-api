@@ -6,7 +6,7 @@ require_relative "./slack"
 
 images = YAML.load_file("#{File.dirname(__FILE__)}/data.yaml")["images"]
 limit = images.count
-slack = Slack.new(logger)
+slack = Slack.new
 
 get "/" do
   <<-HTML
