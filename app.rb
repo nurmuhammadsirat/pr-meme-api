@@ -1,13 +1,11 @@
 require "sinatra"
 require "yaml"
 require "json"
-
-# THIS IS A CHANGE
-
-require_relative "./slack"
+require_relative "lib/slack"
 
 images = YAML.load_file("#{File.dirname(__FILE__)}/data.yaml")["images"]
 limit = images.count
+slack_request_verifier = Slack::RequestVerifier.new ENV['SLACK_SIGNING_SECRET']
 
 get "/" do
   <<-HTML
@@ -53,7 +51,7 @@ get "/:format/:id" do
 end
 
 post "/slack" do
-  if slack.verify(request)
+  if slack_request_verifier.perform_verification_for(request)
     "Authentic payload"
   else
     status 400
